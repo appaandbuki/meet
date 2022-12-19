@@ -69,7 +69,7 @@ Key Feature 5: View a chart showing the number of upcoming events by city.
     Scenario 1: Show a chart with the number of upcoming events in each city
         Given a number of events have been listed for each city
         When a user selects a particular city
-        Then they will see a chat displaying the number of events per city
+        Then they will see a chart displaying the number of events per city
 
 ## User Stories
 
