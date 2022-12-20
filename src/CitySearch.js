@@ -1,5 +1,3 @@
-// src/CitySearch.js
-
 import React, { Component } from "react";
 
 class CitySearch extends Component {
@@ -11,6 +9,7 @@ class CitySearch extends Component {
 
   handleInputChanged = (event) => {
     const value = event.target.value;
+    this.setState({ showSuggestions: true });
     const suggestions = this.props.locations.filter((location) => {
       return location.toUpperCase().indexOf(value.toUpperCase()) > -1;
     });
@@ -41,7 +40,6 @@ class CitySearch extends Component {
             this.setState({ showSuggestions: true });
           }}
         />
-
         <ul
           className="suggestions"
           style={this.state.showSuggestions ? {} : { display: "none" }}
