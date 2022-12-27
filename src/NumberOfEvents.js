@@ -1,46 +1,37 @@
 import React, { Component } from "react";
 import { ErrorAlert } from "./Alert";
-
 class NumberOfEvents extends Component {
   state = {
-    numberOfEvents: 32,
-    errorTest: "",
-    events: [],
+    num: 32,
+    errorText: "",
   };
 
-  handleInputChanged = (event) => {
-    const value = event.target.value;
+  changeNumber = (value) => {
+    this.setState({ num: value });
+    this.props.updateNumberOfEvents(value);
     if (value < 1 || value > 32) {
-      this.setState({
-        numberOfEvents: value,
-        errorText: "Enter number from 1 to 32",
-      });
-    } else {
-      this.setState({
-        numberOfEvents: event.target.value,
-        errorText: "",
-      });
-    }
-
-    this.props.updateEvents(undefined, value);
+      this.setState({ errorText: "Please enter a number between 1 and 32" });
+    } else this.setState({ errorText: "" });
   };
+
+  componentDidMount() {
+    this.setState({ num: this.props.num || 32 });
+  }
 
   render() {
     return (
-      <div>
-        <div className="numberOfEvents">
-          <ErrorAlert text={this.state.errorText} />
-          <label>
-            Number of Events:
-            <input
-              type="number"
-              className="number-of-events-input"
-              min="1"
-              value={this.state.numberOfEvents}
-              onChange={this.handleInputChanged}
-            />
-          </label>
-        </div>
+      <div className="number-events">
+        <ErrorAlert text={this.state.errorText} />
+        <label className="event-numbers-text"> No. of events: </label>
+        <input
+          type="number"
+          className="number-events-input"
+          value={this.state.num}
+          onChange={(event) => {
+            this.changeNumber(event.target.value);
+          }}
+          aria-label="number of events"
+        ></input>
       </div>
     );
   }

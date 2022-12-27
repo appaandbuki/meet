@@ -20,30 +20,15 @@ const credentials = {
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
   redirect_uris: ["https://appaandbuki.github.io/meet/"],
-  javascript_origins: ["https://appaandbuki.github.io", "http://localhost:3000"],
+  javascript_origins: [
+    "https://appaandbuki.github.io",
+    "http://localhost:3000",
+  ],
 };
 const { client_secret, client_id, redirect_uris, calendar_id } = credentials;
-const oAuth2Client = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  redirect_uris[0]
-);
+const oAuth2Client = new OAuth2(client_id, client_secret, redirect_uris[0]);
 
-/**
- *
- * The first step in the OAuth process is to generate a URL so users can log in with
- * Google and be authorized to see your calendar. After logging in, they’ll receive a code
- * as a URL parameter.
- *
- */
 module.exports.getAuthURL = async () => {
-  /**
-   *
-   * Scopes array passed to the `scope` option. Any scopes passed must be enabled in the
-   * "OAuth consent screen" settings in your project on your Google Console. Also, any passed
-   *  scopes are the ones users will see when the consent screen is displayed to them.
-   *
-   */
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
@@ -59,9 +44,6 @@ module.exports.getAuthURL = async () => {
     }),
   };
 };
-
-
-
 
 module.exports.getAccessToken = async (event) => {
   const oAuth2Client = new google.auth.OAuth2(
@@ -86,7 +68,7 @@ module.exports.getAccessToken = async (event) => {
     });
   })
     .then((token) => {
-      // Respond with OAuth token 
+      // Respond with OAuth token
       return {
         statusCode: 200,
         headers: {
@@ -105,20 +87,20 @@ module.exports.getAccessToken = async (event) => {
     });
 };
 
-module.exports.getCalendarEvents = event => {
-  
+module.exports.getCalendarEvents = async (event) => {
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
     redirect_uris[0]
   );
   // Decode authorization code extracted from the URL query
-  const access_token = decodeURIComponent(`${event.pathParameters.access_token}`);
-  oAuth2Client.setCredentials({ access_token }); 
+  const access_token = decodeURIComponent(
+    `${event.pathParameters.access_token}`
+  );
 
+  oAuth2Client.setCredentials({ access_token });
 
-  return new Promise ((resolve, reject)=>{
-
+  return new Promise((resolve, reject) => {
     calendar.events.list(
       {
         calendarId: calendar_id,
@@ -135,24 +117,21 @@ module.exports.getCalendarEvents = event => {
         }
       }
     );
-
   })
-  .then (results => {
-    return{
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin' : '*',
-      },
-      body: JSON.stringify({events: results.data.items})
-    };
-  })
-  .catch(err => {
-    return {
-      statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin' : '*',
-      },
-      body: JSON.stringify(err),
-    };
-  });
-}
+    .then((results) => {
+      return {
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ events: results.data.items }),
+      };
+    })
+    .catch((err) => {
+      console.error(err);
+      return {
+        statusCode: 500,
+        body: JSON.stringify(err),
+      };
+    });
+};

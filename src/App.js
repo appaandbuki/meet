@@ -7,6 +7,15 @@ import { OfflineAlert } from "./Alert";
 import WelcomeScreen from "./WelcomeScreen";
 import EventGenre from "./EventGenre";
 import { getEvents, extractLocations, checkToken, getAccessToken } from "./api";
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 class App extends Component {
   state = {
@@ -82,12 +91,11 @@ class App extends Component {
   render() {
     if (this.state.showWelcomeScreen === undefined)
       return <div className="App" />;
+    const { locations, numberOfEvents, events } = this.state;
     return (
       <div className="App">
-        <div className="hero-container">
-          <h2> FIND YOUR </h2>
-          <p> next big tech event. </p>
-        </div>
+        <h1>Meet App</h1>
+        <h4>Choose your nearest city</h4>
         <OfflineAlert text={this.state.offlineText} />
         <div className="top-container">
           <CitySearch

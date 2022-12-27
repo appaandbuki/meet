@@ -2,17 +2,17 @@ import React, { Component } from "react";
 
 class Event extends Component {
   state = {
-    detailsVisible: false,
+    detailsView: false,
   };
 
-  handleDetailsToggled = () => {
-    if (!this.state.detailsVisible) {
+  handleDetailsToggle = () => {
+    if (!this.state.detailsView) {
       this.setState({
-        detailsVisible: true,
+        detailsView: true,
       });
     } else {
       this.setState({
-        detailsVisible: false,
+        detailsView: false,
       });
     }
   };
@@ -21,34 +21,36 @@ class Event extends Component {
     const { event } = this.props;
     return (
       <div className="event">
-        <h2 className="summary">{event.summary}</h2>
-        <p className="information">
-          {event.start.dateTime} {event.start.timeZone} {event.location}
+        <h1 className="summary">{event.summary}</h1>
+
+        <p className="event-start">
+          {new Date(event.start.dateTime).toString()}
         </p>
-        {this.state.detailsVisible ? (
-          <>
-            <div className="details">
-              <h3 className="details-title">About event:</h3>
-              <a href={event.htmlLink} className="details-link">
-                See details on Google Calendar
-              </a>
-              <p className="details-description">{event.description}</p>
-            </div>
+        <p className="event-location">{event.location}</p>
+
+        {this.state.detailsView ? (
+          <div className="details">
+            <p className="description">{event.description}</p>
+            <a href={event.htmlLink} className="details-link">
+              Go to event page!
+            </a>
             <button
-              className="hide-details"
-              onClick={this.handleDetailsToggled}
+              className="hide-details-btn"
+              onClick={this.handleDetailsToggle}
             >
-              hide details
+              Hide Details
             </button>
-          </>
+          </div>
         ) : (
-          <button className="show-details" onClick={this.handleDetailsToggled}>
-            show details
+          <button
+            className="show-details-btn"
+            onClick={this.handleDetailsToggle}
+          >
+            Show Details
           </button>
         )}
       </div>
     );
   }
 }
-
 export default Event;
