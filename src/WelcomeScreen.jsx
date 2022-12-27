@@ -6,7 +6,7 @@ function WelcomeScreen(props) {
         (
             <div className="WelcomeScreen">
                 <h1 id="welcome-headline">Welcome to the Meet app</h1>
-                <h2 id="welcome-text">Log in to see upcoming events around the world for full-stack developers</h2>
+                <h2 id="welcome-text">Please login below to view deverloper events near you!</h2>
                 <div className="button_cont" align="center">
                     <div class="google-btn">
                         <div class="google-icon-wrapper">
@@ -18,7 +18,7 @@ function WelcomeScreen(props) {
                         </button>
                     </div>
                 </div>
-                <a id="welcome-privacy" href="https://minhajislam674.github.io/meet/privacy.html" rel="nofollow noopener">Privacy policy</a>
+               
             </div>
         )
         : null
