@@ -1,22 +1,7 @@
 import { mockData } from "./mock-data";
 import axios from "axios";
 import NProgress from "nprogress";
-
-export const extractLocations = (events) => {
-  var extractLocations = events.map((event) => event.location);
-  var locations = [...new Set(extractLocations)];
-  return locations;
-};
-
-const checkToken = async (accessToken) => {
-  const result = await fetch(
-    `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`
-  )
-    .then((res) => res.json())
-    .catch((error) => error.json());
-
-  return result;
-};
+import "./nprogress.css";
 
 const removeQuery = () => {
   if (window.history.pushState && window.location.pathname) {
@@ -32,23 +17,55 @@ const removeQuery = () => {
   }
 };
 
-export const getEvents = async () => {
-  NProgress.start();
+const checkToken = async (accessToken) => {
+  // takes the accessToken we found and checks its validity
+  const result = await fetch(
+    `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`
+  )
+    .then((res) => res.json())
+    .catch((error) => error.json());
+
+  return result;
+};
+
+/**
+ *
+ * @param {*} events:
+ * The following function should be in the “api.js” file.
+ * This function takes an events array, then uses map to create a new array with only locations.
+ * It will also remove all duplicates by creating another new array using the spread operator and spreading a Set.
+ * The Set will remove all duplicates from the array.
+ */
+
+export const extractLocations = (events) => {
+  var extractLocations = events.map((event) => event.location);
+  var locations = [...new Set(extractLocations)];
+  return locations;
+};
+
+export const getEvents = async (events) => {
+  NProgress.start(); //display progress bars to show app is loading data
 
   if (window.location.href.startsWith("http://localhost")) {
     NProgress.done();
     return mockData;
   }
 
-  const token = await getAccessToken();
+  if (!navigator.onLine) {
+    const data = localStorage.getItem("lastEvents");
+    NProgress.done();
+    return data ? JSON.parse(events).events : [];
+  }
+
+  const token = await getAccessToken(); //check for an access token
 
   if (token) {
+    //if token is found, make a GET request to the Google Calendar API
     removeQuery();
-    const url =
-      "https://imec49n8x2.execute-api.us-west-1.amazonaws.com/dev/api/get-events" +
-      "/" +
-      token;
+    // eslint-disable-next-line no-useless-concat
+    const url = `https://imec49n8x2.execute-api.us-west-1.amazonaws.com/dev/api/get-events/{access_token}`;
     const result = await axios.get(url);
+
     if (result.data) {
       var locations = extractLocations(result.data.events);
       localStorage.setItem("lastEvents", JSON.stringify(result.data));
@@ -59,10 +76,33 @@ export const getEvents = async () => {
   }
 };
 
+export const getAccessToken = async () => {
+  const accessToken = localStorage.getItem("access_token");
+  //Checking accessToken and if a token is found, call checkToken function, which checks the token’s validity.
+  const tokenCheck = accessToken && (await checkToken(accessToken));
+
+  if (!accessToken || tokenCheck.error) {
+    // If no token is found (!accessToken), it then checks for an authorization code.
+    await localStorage.removeItem("access_token");
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = await searchParams.get("code");
+    if (!code) {
+      //If no authorization code is found (!code), the user is automatically redirected to the Google Authorization screen
+      const results = await axios.get(
+        "https://imec49n8x2.execute-api.us-west-1.amazonaws.com/dev/api/get-auth-url"
+      );
+      const { authUrl } = results.data;
+      return (window.localStorage.href = authUrl);
+    }
+    return code && getToken(code);
+  }
+  return accessToken;
+};
+
 const getToken = async (code) => {
-  const encodeCode = encodeURIComponent(code);
+  const encodeCode = encodeURIComponent(code); // takes the code and encodes it using encodeURIComponent
   const { access_token } = await fetch(
-    "https://imec49n8x2.execute-api.us-west-1.amazonaws.com/dev/api/token" +
+    `https://imec49n8x2.execute-api.us-west-1.amazonaws.com/dev/api/token` +
       "/" +
       encodeCode
   )
@@ -74,24 +114,4 @@ const getToken = async (code) => {
   access_token && localStorage.setItem("access_token", access_token);
 
   return access_token;
-};
-
-export const getAccessToken = async () => {
-  const accessToken = localStorage.getItem("access_token");
-  const tokenCheck = accessToken && (await checkToken(accessToken));
-
-  if (!accessToken || tokenCheck.error) {
-    await localStorage.removeItem("access_token");
-    const searchParams = new URLSearchParams(window.location.search);
-    const code = await searchParams.get("code");
-    if (!code) {
-      const results = await axios.get(
-        "https://imec49n8x2.execute-api.us-west-1.amazonaws.com/dev/api/get-auth-url"
-      );
-      const { authUrl } = results.data;
-      return (window.location.href = authUrl);
-    }
-    return code && getToken(code);
-  }
-  return accessToken;
 };
