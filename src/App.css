@@ -2,10 +2,15 @@
 
 .App {
   text-align: center;
+  color:#003f5c;
+  
+
 }
 
 .App * {
   box-sizing: border-box;
+
+  
 }
 
 ul {
@@ -125,6 +130,7 @@ input[type="number"]:focus {
 .number-events{
   margin-top: 10px;;
   display: block;
+  margin-right: 100px;
 }
 
 .show-details-btn {
@@ -280,17 +286,6 @@ a.details-link {
   font-size: 14px;
   letter-spacing: 0.2px;
   font-family: "Roboto";
-}
-
-.hero-container h2 {
-  color: #fff;
-  opacity: 0.8;
-}
-.hero-container p {
-  color: #fff;
-  font-size: xxx-large;
-  margin-top: -20px;
-  font-weight: 700;
 }
 
 
